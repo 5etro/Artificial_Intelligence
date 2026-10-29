@@ -14,6 +14,7 @@ def get_data():
     return list(byte_data)  
 
 def get_pairs():
+    token_bytes = {i: [i] for i in range(256)}
     reverse_lookup = {}
     token_number = 256
     vocabulary = {}
@@ -51,8 +52,11 @@ def get_pairs():
         for tuples_index, tuples in enumerate(match):
             if tuples in reverse_lookup:
                 id_match[tuples_index] = reverse_lookup[tuples]
-
-        vocabulary[str(token_number)] = match
+        
+        token_bytes[match] = []
+        for tuples in match:
+            token_bytes[match].extend(token_bytes[tuples])
+        vocabulary[str(token_number)] = token_bytes[match]
         match = tuple(match)
         id_match = tuple(id_match)
         reverse_lookup[match] = token_number
@@ -72,4 +76,4 @@ get_pairs()
 
 
         
-        
+    
