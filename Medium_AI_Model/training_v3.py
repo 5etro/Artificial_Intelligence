@@ -7,21 +7,23 @@ start = 0
 learning_rate = 0.0001
 standard_weights = 32
 number_tokens = 0
+batch_size = 500
 #Weights (Will be moved to another file)
     # Token N Probablity weights
+weights = np.load("Medium_AI_Model/model_weights.npz")
 
-    # Attention Weights
-QM = np.random.randn(standard_weights, standard_weights)
-KM = np.random.randn(standard_weights, standard_weights)
-VM = np.random.randn(standard_weights, standard_weights)
-    #Layer Norm
-gamma_ffn = np.ones(standard_weights)
-beta_ffn = np.zeros(standard_weights)
-gamma_atn = np.ones(standard_weights)
-beta_atn = np.zeros(standard_weights)
-    # FFN & GELU
-expand_matrix = np.random.randn(standard_weights, standard_weights  * 2)
-shrink_matrix = np.random.randn(standard_weights *2, standard_weights)
+embed_matrix = weights["embed_matrix"]
+output_matrix = weights["output_matrix"]
+QM = weights["QM"]
+KM = weights["KM"]
+VM = weights["VM"]
+expand_matrix = weights["expand_matrix"]
+shrink_matrix = weights["shrink_matrix"]
+gamma_ffn = weights["gamma_ffn"]
+beta_ffn = weights["beta_ffn"]
+gamma_atn = weights["gamma_atn"]
+beta_atn = weights["beta_atn"]
+
 
 # Test Variables that will be deleted
     # BackProp
@@ -108,7 +110,7 @@ def numberify():
 def embedding_matrix():
     global batch, start, done
 
-    batch = embeded_matrix[start:start + 100]
+    batch = embeded_matrix[start:start + batch_size]
     weighted_text = embed_matrix[batch]
 
     start += len(batch)
@@ -335,6 +337,20 @@ def training():
     x,y,z = cross_entropy(output)
     backprop(y,z,output, normalized_matrix, before_norm, deviation, gelu_output, expanded_matrix, shrink_matrix, ffn_matrix, deviation_atn, pre_norm_atn, useful_prompt, values, residual_input, softmaxxed, Q, K, EM, total_gamma, total_beta, attn_pre_gamma, attn_pre_beta)
     update()
+    np.savez(
+    "Medium_AI_Model/model_weights.npz",
+    embed_matrix=embed_matrix,
+    output_matrix=output_matrix,
+    QM=QM,
+    KM=KM,
+    VM=VM,
+    expand_matrix=expand_matrix,
+    shrink_matrix=shrink_matrix,
+    gamma_ffn=gamma_ffn,
+    beta_ffn=beta_ffn,
+    gamma_atn=gamma_atn,
+    beta_atn=beta_atn
+)
     return x
 
 def generation():
@@ -370,7 +386,7 @@ parameters = [
     ("gamma_atn", gamma_atn),
     ("beta_atn", beta_atn),
 ]
-for awewaefwaefwef in range(10):
+for awewaefwaefwef in range(20):
     for n in range(100000):
         x = training()
         if done is True:
